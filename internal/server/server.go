@@ -34,12 +34,6 @@ func New(cfg *config.Config, db *mongo.Database) *fiber.App {
 }
 
 func setupRoutes(app *fiber.App, cfg *config.Config, db *mongo.Database) {
-	app.Get("/health", func(c fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"status": "ok",
-		})
-	})
-
 	api := app.Group("/api")
 	api.Get("/health", func(c fiber.Ctx) error {
 		return c.JSON(fiber.Map{
@@ -55,7 +49,6 @@ func setupRoutes(app *fiber.App, cfg *config.Config, db *mongo.Database) {
 
 		authMiddleware := auth.NewAuthMiddleware(cfg.CorpusAPISecret, cfg.KeyStorePath)
 
-		corpus.RegisterRoutes(app, corpusHandler, authMiddleware)
 		corpus.RegisterRoutes(api, corpusHandler, authMiddleware)
 	}
 }

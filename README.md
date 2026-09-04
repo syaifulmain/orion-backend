@@ -72,7 +72,7 @@ MONGODB_URI=mongodb://admin:166333@localhost:27017/orion_db?authSource=admin
 
 ## Authentication (Mandatory)
 
-Authentication is **strictly mandatory** for all `/corpus/*` and `/api/corpus/*` endpoints. `CORPUS_API_SECRET` must be configured in `.env` or system environment variables (minimum 32 bytes) for the server to start. Only `/health` and `/api/health` remain publicly accessible without credentials.
+Authentication is **strictly mandatory** for all `/api/corpus/*` endpoints. `CORPUS_API_SECRET` must be configured in `.env` or system environment variables (minimum 32 bytes) for the server to start. Only `/api/health` remains publicly accessible without credentials.
 
 ### API Key Details & Structure
 - Keys use the `cps_` prefix followed by 22 base64url characters (e.g. `cps_xYEpf3wJFwfQ-L6QeZXv1w`).
@@ -97,8 +97,17 @@ If the key is missing, invalid, or expired, the server responds with `401 Unauth
 
 ## API Documentation
 
+| Method | Endpoint | Authentication | Purpose |
+| --- | --- | --- | --- |
+| `GET` | `/api/health` | No | Check API availability |
+| `GET` | `/api/corpus` | Bearer | List, filter, and search records |
+| `GET` | `/api/corpus/:id` | Bearer | Get record by ID |
+| `GET` | `/api/corpus/export` | Bearer | Stream matching records as JSONL |
+
+---
+
 ### 1. Health Check
-- **Endpoint:** `GET /health` or `GET /api/health`
+- **Endpoint:** `GET /api/health`
 - **Response:**
   ```json
   {
@@ -109,7 +118,7 @@ If the key is missing, invalid, or expired, the server responds with `401 Unauth
 ---
 
 ### 2. List & Filter Corpus
-- **Endpoint:** `GET /corpus` (or `GET /api/corpus`)
+- **Endpoint:** `GET /api/corpus`
 - **Headers:** `Authorization: Bearer <api_key>` or `X-API-Key: <api_key>`
 - **Query Parameters:**
   | Parameter | Type | Default | Description |
@@ -145,13 +154,13 @@ If the key is missing, invalid, or expired, the server responds with `401 Unauth
 
 - **cURL Example:**
   ```bash
-  curl -H "Authorization: Bearer <api_key>" "http://localhost:8080/corpus?q=kesehatan&split=eval&limit=10"
+  curl -H "Authorization: Bearer <api_key>" "http://localhost:8080/api/corpus?q=kesehatan&split=eval&limit=10"
   ```
 
 ---
 
 ### 3. Get Corpus by ID
-- **Endpoint:** `GET /corpus/:id` (or `GET /api/corpus/:id`)
+- **Endpoint:** `GET /api/corpus/:id`
 - **Headers:** `Authorization: Bearer <api_key>` or `X-API-Key: <api_key>`
 - **Success Response (200 OK):**
   ```json
@@ -169,13 +178,13 @@ If the key is missing, invalid, or expired, the server responds with `401 Unauth
 
 - **cURL Example:**
   ```bash
-  curl -H "Authorization: Bearer <api_key>" "http://localhost:8080/corpus/005ad92162fa3049802f161b"
+  curl -H "Authorization: Bearer <api_key>" "http://localhost:8080/api/corpus/005ad92162fa3049802f161b"
   ```
 
 ---
 
 ### 4. Streaming Export JSONL
-- **Endpoint:** `GET /corpus/export` (or `GET /api/corpus/export`)
+- **Endpoint:** `GET /api/corpus/export`
 - **Headers:**
   - `Authorization: Bearer <api_key>` or `X-API-Key: <api_key>`
   - `Content-Type: application/x-ndjson; charset=utf-8`
@@ -184,7 +193,7 @@ If the key is missing, invalid, or expired, the server responds with `401 Unauth
 
 - **cURL Example:**
   ```bash
-  curl -N -H "Authorization: Bearer <api_key>" "http://localhost:8080/corpus/export?source=youtube" -o corpus-export.jsonl
+  curl -N -H "Authorization: Bearer <api_key>" "http://localhost:8080/api/corpus/export?source=youtube" -o corpus-export.jsonl
   ```
 
 ---
