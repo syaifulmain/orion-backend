@@ -19,6 +19,17 @@ func NewHandler(service Service) *Handler {
 	return &Handler{service: service}
 }
 
+// List godoc
+// @Summary List & Filter Corpus
+// @Description Retrieve a paginated list of corpus records matching query search and filters
+// @Tags Corpus
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Security ApiKeyAuth
+// @Param request query corpus.FilterParams false "Filter params"
+// @Success 200 {object} response.PaginatedResponse[corpus.Corpus]
+// @Router /api/corpus [get]
 func (h *Handler) List(c fiber.Ctx) error {
 	var params FilterParams
 	if err := c.Bind().Query(&params); err != nil {
@@ -36,6 +47,17 @@ func (h *Handler) List(c fiber.Ctx) error {
 	return response.JSONPaginated(c, records, total, validParams.Limit, validParams.Offset)
 }
 
+// GetByID godoc
+// @Summary Get Corpus by ID
+// @Description Retrieve a single corpus record by its unique ID
+// @Tags Corpus
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Security ApiKeyAuth
+// @Param id path string true "Corpus Record ID"
+// @Success 200 {object} response.SuccessResponse[corpus.Corpus]
+// @Router /api/corpus/{id} [get]
 func (h *Handler) GetByID(c fiber.Ctx) error {
 	id := c.Params("id")
 	item, err := h.service.GetCorpusByID(c.Context(), id)
@@ -49,6 +71,16 @@ func (h *Handler) GetByID(c fiber.Ctx) error {
 	return response.JSONSuccess(c, fiber.StatusOK, item)
 }
 
+// Export godoc
+// @Summary Streaming Export JSONL
+// @Description Stream matching corpus records in newline-delimited JSON format (JSONL). limit and offset are not allowed.
+// @Tags Corpus
+// @Produce application/x-ndjson
+// @Security BearerAuth
+// @Security ApiKeyAuth
+// @Param request query corpus.ExportFilterParams false "Export filter params"
+// @Success 200 {string} string "Stream of newline-delimited JSON records"
+// @Router /api/corpus/export [get]
 func (h *Handler) Export(c fiber.Ctx) error {
 	// Reject pagination parameters
 	queries := c.Queries()
@@ -59,12 +91,12 @@ func (h *Handler) Export(c fiber.Ctx) error {
 		return response.JSONError(c, fiber.StatusBadRequest, "offset parameter is not allowed for export")
 	}
 
-	var params FilterParams
+	var params ExportFilterParams
 	if err := c.Bind().Query(&params); err != nil {
 		return response.JSONError(c, fiber.StatusBadRequest, "Invalid query parameters: "+err.Error())
 	}
 
-	validated, err := h.service.ValidateFilter(params)
+	validated, err := h.service.ValidateFilter(params.ToFilterParams())
 	if err != nil {
 		if errors.Is(err, ErrInvalidSplit) || errors.Is(err, ErrQueryTooLong) {
 			return response.JSONError(c, fiber.StatusBadRequest, err.Error())

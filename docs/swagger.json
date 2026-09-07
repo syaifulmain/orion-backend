@@ -1,0 +1,278 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "High-performance Indonesian speech \u0026 text corpus repository and catalog API backend.",
+        "title": "Orion Backend API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/api/corpus": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve a paginated list of corpus records matching query search and filters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Corpus"
+                ],
+                "summary": "List \u0026 Filter Corpus",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "CC-BY-3.0",
+                        "description": "License type (case-insensitive exact match, e.g. CC-BY-3.0)",
+                        "name": "license",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 25,
+                        "description": "Items per page (default: 25, max: 1000)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Items to skip (default: 0)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "maxLength": 200,
+                        "type": "string",
+                        "example": "kesehatan",
+                        "description": "Case-insensitive text \u0026 source search (max 200 chars)",
+                        "name": "q",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "example": "youtube",
+                        "description": "Source origin (exact match or prefix, e.g. youtube)",
+                        "name": "source",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "train",
+                            "eval",
+                            "test"
+                        ],
+                        "type": "string",
+                        "example": "eval",
+                        "description": "Dataset split partition",
+                        "name": "split",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/orion-backend_pkg_response.PaginatedResponse-internal_corpus_Corpus"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/corpus/export": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Stream matching corpus records in newline-delimited JSON format (JSONL). limit and offset are not allowed.",
+                "produces": [
+                    "application/x-ndjson"
+                ],
+                "tags": [
+                    "Corpus"
+                ],
+                "summary": "Streaming Export JSONL",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "CC-BY-3.0",
+                        "description": "License type (case-insensitive exact match, e.g. CC-BY-3.0)",
+                        "name": "license",
+                        "in": "query"
+                    },
+                    {
+                        "maxLength": 200,
+                        "type": "string",
+                        "example": "kesehatan",
+                        "description": "Case-insensitive text \u0026 source search (max 200 chars)",
+                        "name": "q",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "example": "youtube",
+                        "description": "Source origin (exact match or prefix, e.g. youtube)",
+                        "name": "source",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "train",
+                            "eval",
+                            "test"
+                        ],
+                        "type": "string",
+                        "example": "eval",
+                        "description": "Dataset split partition",
+                        "name": "split",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Stream of newline-delimited JSON records",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/corpus/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieve a single corpus record by its unique ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Corpus"
+                ],
+                "summary": "Get Corpus by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Corpus Record ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/orion-backend_pkg_response.SuccessResponse-internal_corpus_Corpus"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "internal_corpus.Corpus": {
+            "type": "object",
+            "properties": {
+                "crawl_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "license": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "split": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "orion-backend_pkg_response.PaginatedResponse-internal_corpus_Corpus": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_corpus.Corpus"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/orion-backend_pkg_response.Pagination"
+                }
+            }
+        },
+        "orion-backend_pkg_response.Pagination": {
+            "type": "object",
+            "properties": {
+                "has_more": {
+                    "type": "boolean"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "orion-backend_pkg_response.SuccessResponse-internal_corpus_Corpus": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/internal_corpus.Corpus"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "description": "Alternative header passing your HMAC-SHA256 API key directly (e.g. 'cps_xxx').",
+            "type": "apiKey",
+            "name": "X-API-Key",
+            "in": "header"
+        },
+        "BearerAuth": {
+            "description": "Pass your HMAC-SHA256 API key prefixed by Bearer (e.g. 'Bearer cps_xxx').",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

@@ -1,0 +1,186 @@
+basePath: /
+definitions:
+  internal_corpus.Corpus:
+    properties:
+      crawl_date:
+        type: string
+      id:
+        type: string
+      license:
+        type: string
+      source:
+        type: string
+      split:
+        type: string
+      text:
+        type: string
+    type: object
+  orion-backend_pkg_response.PaginatedResponse-internal_corpus_Corpus:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/internal_corpus.Corpus'
+        type: array
+      pagination:
+        $ref: '#/definitions/orion-backend_pkg_response.Pagination'
+    type: object
+  orion-backend_pkg_response.Pagination:
+    properties:
+      has_more:
+        type: boolean
+      limit:
+        type: integer
+      offset:
+        type: integer
+      total:
+        type: integer
+    type: object
+  orion-backend_pkg_response.SuccessResponse-internal_corpus_Corpus:
+    properties:
+      data:
+        $ref: '#/definitions/internal_corpus.Corpus'
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: High-performance Indonesian speech & text corpus repository and catalog
+    API backend.
+  title: Orion Backend API
+  version: "1.0"
+paths:
+  /api/corpus:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a paginated list of corpus records matching query search
+        and filters
+      parameters:
+      - description: License type (case-insensitive exact match, e.g. CC-BY-3.0)
+        example: CC-BY-3.0
+        in: query
+        name: license
+        type: string
+      - default: 25
+        description: 'Items per page (default: 25, max: 1000)'
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: 'Items to skip (default: 0)'
+        in: query
+        name: offset
+        type: integer
+      - description: Case-insensitive text & source search (max 200 chars)
+        example: kesehatan
+        in: query
+        maxLength: 200
+        name: q
+        type: string
+      - description: Source origin (exact match or prefix, e.g. youtube)
+        example: youtube
+        in: query
+        name: source
+        type: string
+      - description: Dataset split partition
+        enum:
+        - train
+        - eval
+        - test
+        example: eval
+        in: query
+        name: split
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orion-backend_pkg_response.PaginatedResponse-internal_corpus_Corpus'
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: List & Filter Corpus
+      tags:
+      - Corpus
+  /api/corpus/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single corpus record by its unique ID
+      parameters:
+      - description: Corpus Record ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/orion-backend_pkg_response.SuccessResponse-internal_corpus_Corpus'
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: Get Corpus by ID
+      tags:
+      - Corpus
+  /api/corpus/export:
+    get:
+      description: Stream matching corpus records in newline-delimited JSON format
+        (JSONL). limit and offset are not allowed.
+      parameters:
+      - description: License type (case-insensitive exact match, e.g. CC-BY-3.0)
+        example: CC-BY-3.0
+        in: query
+        name: license
+        type: string
+      - description: Case-insensitive text & source search (max 200 chars)
+        example: kesehatan
+        in: query
+        maxLength: 200
+        name: q
+        type: string
+      - description: Source origin (exact match or prefix, e.g. youtube)
+        example: youtube
+        in: query
+        name: source
+        type: string
+      - description: Dataset split partition
+        enum:
+        - train
+        - eval
+        - test
+        example: eval
+        in: query
+        name: split
+        type: string
+      produces:
+      - application/x-ndjson
+      responses:
+        "200":
+          description: Stream of newline-delimited JSON records
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      - ApiKeyAuth: []
+      summary: Streaming Export JSONL
+      tags:
+      - Corpus
+securityDefinitions:
+  ApiKeyAuth:
+    description: Alternative header passing your HMAC-SHA256 API key directly (e.g.
+      'cps_xxx').
+    in: header
+    name: X-API-Key
+    type: apiKey
+  BearerAuth:
+    description: Pass your HMAC-SHA256 API key prefixed by Bearer (e.g. 'Bearer cps_xxx').
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

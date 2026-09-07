@@ -1,10 +1,14 @@
 package server
 
 import (
+	_ "orion-backend/docs"
 	"orion-backend/internal/auth"
 	"orion-backend/internal/config"
 	"orion-backend/internal/corpus"
 
+	"html/template"
+
+	swaggo "github.com/gofiber/contrib/v3/swaggo"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/gofiber/fiber/v3/middleware/logger"
@@ -34,6 +38,16 @@ func New(cfg *config.Config, db *mongo.Database) *fiber.App {
 }
 
 func setupRoutes(app *fiber.App, cfg *config.Config, db *mongo.Database) {
+	// Mount Swaggo documentation at /docs
+	app.Get("/docs", func(c fiber.Ctx) error {
+		return c.Redirect().Status(fiber.StatusMovedPermanently).To("/docs/index.html")
+	})
+	app.Get("/docs/*", swaggo.New(swaggo.Config{
+		Title:                    "Orion Backend API Docs",
+		DefaultModelsExpandDepth: -1,
+		CustomStyle:              template.CSS(".swagger-ui .topbar { display: none !important; }"),
+	}))
+
 	api := app.Group("/api")
 	api.Get("/health", func(c fiber.Ctx) error {
 		return c.JSON(fiber.Map{

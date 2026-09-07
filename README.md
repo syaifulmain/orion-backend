@@ -99,6 +99,7 @@ If the key is missing, invalid, or expired, the server responds with `401 Unauth
 
 | Method | Endpoint | Authentication | Purpose |
 | --- | --- | --- | --- |
+| `GET` | `/docs` | No | Interactive Swagger UI API documentation |
 | `GET` | `/api/health` | No | Check API availability |
 | `GET` | `/api/corpus` | Bearer | List, filter, and search records |
 | `GET` | `/api/corpus/:id` | Bearer | Get record by ID |

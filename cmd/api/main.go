@@ -13,6 +13,21 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
+// @title Orion Backend API
+// @version 1.0
+// @description High-performance Indonesian speech & text corpus repository and catalog API backend.
+//
+// @BasePath /
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Pass your HMAC-SHA256 API key prefixed by Bearer (e.g. 'Bearer cps_xxx').
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name X-API-Key
+// @description Alternative header passing your HMAC-SHA256 API key directly (e.g. 'cps_xxx').
 func main() {
 	// Load configuration from environment variables / .env
 	cfg := config.LoadConfig()

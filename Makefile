@@ -3,7 +3,7 @@ MAIN_PATH = cmd/api/main.go
 BIN_DIR = bin
 BIN_PATH = $(BIN_DIR)/api
 
-.PHONY: all build run clean tidy help gen-key
+.PHONY: all build run clean tidy help gen-key docs
 
 all: build
 
@@ -34,11 +34,18 @@ clean:
 	@rm -rf $(BIN_DIR)
 	@echo "==> Done."
 
+## docs: Generate Swagger API documentation files
+docs:
+	@echo "==> Generating Swagger docs..."
+	@swag init --parseDependency -g $(MAIN_PATH) -o docs
+	@echo "==> Done. Docs generated at docs/"
+
 ## help: Display available Makefile commands
 help:
 	@echo "Available commands:"
 	@echo "  make run                   - Run the application server"
 	@echo "  make build                 - Compile binary to $(BIN_PATH)"
+	@echo "  make docs                  - Generate Swagger API documentation"
 	@echo "  make gen-key NAME=<name>   - Generate a Bearer API key"
 	@echo "  make tidy                  - Run 'go mod tidy'"
 	@echo "  make clean                 - Remove build directory ($(BIN_DIR))"
